@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farhan OS v3.0 - Sound & Visual FX Edition</title>
+    <title>Farhan OS v3.1 - Fix Sound & Visual FX</title>
     <style>
         :root {
             --bg-color: #0d1117;
@@ -38,7 +38,7 @@
             position: relative;
         }
 
-        /* Scanline CRT Effect */
+        /* CRT Overlay Filter */
         body::before {
             content: " ";
             display: block;
@@ -46,9 +46,42 @@
             top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
             background-size: 100% 4px;
-            z-index: 100;
+            z-index: 90;
             pointer-events: none;
-            opacity: 0.6;
+            opacity: 0.5;
+        }
+
+        /* Overlay Start Screen */
+        #start-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(13, 17, 23, 0.95);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            text-align: center;
+            border: 2px solid var(--cyan);
+        }
+
+        #start-overlay h1 {
+            color: var(--green);
+            font-size: 24px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(63, 185, 80, 0.5);
+        }
+
+        #start-overlay p {
+            color: var(--cyan);
+            font-size: 14px;
+            animation: blink 1.2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
 
         .terminal {
@@ -63,16 +96,9 @@
             transition: box-shadow 0.2s;
         }
 
-        /* Flash Screen VFX */
-        .terminal.flash-green {
-            box-shadow: 0 0 40px rgba(63, 185, 80, 0.6);
-        }
+        .terminal.flash-green { box-shadow: 0 0 40px rgba(63, 185, 80, 0.8); }
+        .terminal.flash-red { box-shadow: 0 0 40px rgba(248, 81, 73, 0.8); }
 
-        .terminal.flash-red {
-            box-shadow: 0 0 40px rgba(248, 81, 73, 0.6);
-        }
-
-        /* Terminal Bar Top */
         .term-header {
             background: #21262d;
             padding: 10px 15px;
@@ -88,35 +114,25 @@
         .dot-yellow { background: #ffbd2e; }
         .dot-green { background: #27c93f; }
 
-        .term-title {
-            color: #8b949e;
-            font-size: 13px;
-            font-weight: bold;
-        }
+        .term-title { color: #8b949e; font-size: 13px; font-weight: bold; }
 
         .sound-toggle {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.08);
             border: 1px solid var(--term-border);
             color: var(--cyan);
-            padding: 3px 8px;
+            padding: 4px 10px;
             border-radius: 4px;
             font-size: 11px;
             cursor: pointer;
         }
 
-        .term-body {
-            padding: 20px;
-            max-height: 600px;
-            overflow-y: auto;
-        }
-
+        .term-body { padding: 20px; max-height: 600px; overflow-y: auto; }
         .command-line { margin-bottom: 15px; line-height: 1.5; }
         .prompt { color: var(--green); font-weight: bold; }
         .path { color: var(--cyan); }
         .highlight { color: var(--purple); font-weight: bold; }
         .white { color: var(--white); font-weight: bold; }
 
-        /* Menu Buttons */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -138,7 +154,6 @@
         }
 
         .btn-menu:hover { background: var(--cyan); color: #0d1117; transform: translateY(-2px); }
-        .btn-menu:active { transform: translateY(0); }
 
         .content-box {
             background: #0d1117;
@@ -149,20 +164,16 @@
             display: none;
         }
 
-        .content-box.active {
-            display: block;
-            animation: fadeIn 0.3s ease-in-out;
-        }
+        .content-box.active { display: block; animation: fadeIn 0.3s ease-in-out; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Business Simulator Layout */
         .sim-dashboard {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 12px;
             margin-bottom: 15px;
             background: #161b22;
@@ -190,21 +201,14 @@
             cursor: pointer;
             text-align: left;
             transition: 0.2s;
-            position: relative;
-            overflow: hidden;
         }
 
         .btn-action:hover:not(:disabled) {
             border-color: var(--green);
             background: #1f2937;
-            transform: scale(1.01);
         }
 
-        .btn-action:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
+        .btn-action:disabled { opacity: 0.4; cursor: not-allowed; }
         .action-title { font-weight: bold; color: var(--green); font-size: 13px; }
         .action-desc { font-size: 11px; color: #8b949e; margin-top: 3px; }
 
@@ -214,31 +218,37 @@
             color: var(--yellow);
             font-size: 12px;
             padding: 10px;
-            height: 70px;
+            height: 75px;
             overflow-y: auto;
             border-radius: 6px;
             margin-top: 15px;
         }
 
-        /* Floating Money Animation VFX */
+        /* Visual FX Text Floating */
         .floating-text {
             position: fixed;
             color: var(--green);
             font-weight: bold;
-            font-size: 16px;
+            font-size: 18px;
             pointer-events: none;
             animation: floatUp 0.8s ease-out forwards;
-            z-index: 999;
-            text-shadow: 0 0 8px rgba(63, 185, 80, 0.8);
+            z-index: 1000;
+            text-shadow: 0 0 10px rgba(63, 185, 80, 0.9);
         }
 
         @keyframes floatUp {
             0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-35px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-40px) scale(1.3); }
         }
     </style>
 </head>
 <body>
+
+    <!-- START OVERLAY UNTUK MENGIZINKAN AUDIO BROWSER -->
+    <div id="start-overlay" onclick="startSystem()">
+        <h1>[ FARHAN OS v3.1 ]</h1>
+        <p>KLIK DI MANA SAJA UNTUK MEMULAI SYSTEM & AUDIO FX</p>
+    </div>
 
     <div class="terminal" id="terminal">
         <div class="term-header">
@@ -247,14 +257,14 @@
                 <div class="dot dot-yellow" onclick="playSound('click')"></div>
                 <div class="dot dot-green" onclick="playSound('click')"></div>
             </div>
-            <div class="term-title">farhan@user-desktop:~ (OS v3.0)</div>
+            <div class="term-title">farhan@user-desktop:~ (OS v3.1)</div>
             <button class="sound-toggle" id="sound-btn" onclick="toggleSound()">🔊 AUDIO: ON</button>
         </div>
 
         <div class="term-body">
             <div class="command-line">
-                <span class="prompt">farhan@system</span>:<span class="path">~</span>$ ./init_biodata.sh --with-fx<br>
-                <span style="color: #8b949e;">[SYSTEM OK] Audio Synthesizer & VFX Ready!</span>
+                <span class="prompt">farhan@system</span>:<span class="path">~</span>$ ./init_biodata.sh --fix-audio<br>
+                <span style="color: #8b949e;">[SYSTEM OK] Sound Synthesizer & Graphic Engine Active!</span>
             </div>
 
             <div style="margin-bottom: 20px;">
@@ -263,7 +273,6 @@
                 <p>===========================================</p>
             </div>
 
-            <!-- Navigasi Utama -->
             <div class="menu-grid">
                 <button class="btn-menu" onclick="showSection('bio')">[1] Biodata</button>
                 <button class="btn-menu" onclick="showSection('cita')">[2] Cita-Cita</button>
@@ -276,7 +285,7 @@
                 <p class="highlight">> INFO BIODATA PRIBADI</p><br>
                 <p>• <span class="white">Nama Lengkap</span> : Farhan Nur Hakim</p>
                 <p>• <span class="white">Tanggal Lahir</span> : 21 Desember 2010</p>
-                <p>• <span class="white">Alamat</span>       : Jl. Cisitu Indah, Bandung</p>
+                <p>• <span class="white">Alamat</span>       : Bandung, Jawa Barat</p>
                 <p>• <span class="white">Status</span>       : <span style="color: var(--green);">Pelajar / Future Entrepreneur</span></p>
             </div>
 
@@ -291,15 +300,14 @@
             <div id="sec-hobi" class="content-box">
                 <p class="highlight">> DATA HOBI & HIBURAN</p><br>
                 <p>• <span class="white">Hobi Utama</span>   : Main Game (Gaming)</p>
-                <p>• <span class="white">Fokus Game</span>  : Strategy, Simulation, & PC Action</p>
+                <p>• <span class="white">Fokus Game</span>  : Minecraft Java Edition, Strategy, & Simulation</p>
             </div>
 
-            <!-- SECTION 4: SIMULASI BISNIS ADVANCED -->
+            <!-- SECTION 4: SIMULASI BISNIS -->
             <div id="sec-sim" class="content-box">
-                <p class="highlight">> FARHAN ENTERPRISE SIMULATOR v3.0</p>
-                <p style="font-size: 11px; color: #8b949e; margin-bottom: 12px;">Kelola modal bisnis Farhan dari Nol hingga jadi Raksasa Teknologi!</p>
+                <p class="highlight">> FARHAN ENTERPRISE SIMULATOR v3.1</p>
+                <p style="font-size: 11px; color: #8b949e; margin-bottom: 12px;">Kelola bisnis Farhan dari modal nol hingga jadi Raksasa Teknologi!</p>
 
-                <!-- Dashboard Statistik -->
                 <div class="sim-dashboard">
                     <div class="stat-item">
                         <div>Kas Modal:</div>
@@ -315,13 +323,11 @@
                     </div>
                 </div>
 
-                <!-- Tombol Eksekusi Utam -->
                 <button class="btn-action" style="width: 100%; text-align: center; background: #1f2937; margin-bottom: 12px;" onclick="klikBisnis(event)">
-                    <div class="action-title" style="font-size: 14px;">🚀 TERIMA PROYEK FREELANCE (+Rp 100.000)</div>
+                    <div class="action-title" style="font-size: 14px; text-align: center;">🚀 TERIMA PROYEK FREELANCE (+Rp 100.000)</div>
                 </button>
 
-                <!-- Pilihan Upgrade & Rekrutmen -->
-                <div class="highlight" style="font-size: 12px; margin-top: 10px;">> OPSI EKSPANSI & OTOMATISASI:</div>
+                <div class="highlight" style="font-size: 12px; margin-top: 10px;">> OPSI EKSPANSI BISNIS:</div>
                 <div class="biz-actions">
                     <button id="btn-staff" class="btn-action" onclick="buyUpgrade('staff', event)">
                         <div class="action-title">Rekrut Programmer (Rp 500rb)</div>
@@ -329,19 +335,18 @@
                     </button>
 
                     <button id="btn-mkt" class="btn-action" onclick="buyUpgrade('mkt', event)">
-                        <div class="action-title">Pasang Iklan Digital (Rp 2 Juta)</div>
+                        <div class="action-title">Pasang Iklan (Rp 2 Juta)</div>
                         <div class="action-desc">+Rp 250.000 /detik otomatis</div>
                     </button>
 
                     <button id="btn-corp" class="btn-action" onclick="buyUpgrade('corp', event)">
-                        <div class="action-title">Sewa Kantor Eksekutif (Rp 10 Juta)</div>
+                        <div class="action-title">Sewa Kantor (Rp 10 Juta)</div>
                         <div class="action-desc">+Rp 1.500.000 /detik otomatis</div>
                     </button>
                 </div>
 
-                <!-- Terminal Event Log -->
                 <div class="log-box" id="log-box">
-                    [SYSTEM] Game Dimulai! Klik 'Terima Proyek' untuk mengumpulkan modal pertama.
+                    [SYSTEM] Terminal siap. Klik 'Terima Proyek' untuk mulai kumpulkan modal!
                 </div>
             </div>
 
@@ -349,61 +354,78 @@
     </div>
 
     <script>
-        // --- WEB AUDIO API SYNTHESIZER ---
+        // --- WEB AUDIO ENGINE WITH AUTO-RESUME ---
         let soundEnabled = true;
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        let audioCtx;
+        let audioCtx = null;
 
-        function initAudio() {
+        function getAudioContext() {
             if (!audioCtx) {
-                audioCtx = new AudioContext();
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) {
+                    audioCtx = new AudioContextClass();
+                }
             }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function startSystem() {
+            getAudioContext();
+            document.getElementById('start-overlay').style.display = 'none';
+            playSound('buy');
         }
 
         function playSound(type) {
             if (!soundEnabled) return;
-            initAudio();
+            const ctx = getAudioContext();
+            if (!ctx) return;
 
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
+            try {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
 
-            const now = audioCtx.currentTime;
+                const now = ctx.currentTime;
 
-            if (type === 'click') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(600, now);
-                osc.frequency.exponentialRampToValueAtTime(200, now + 0.05);
-                gain.gain.setValueAtTime(0.15, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
-                osc.start(now);
-                osc.stop(now + 0.05);
-            } else if (type === 'coin') {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(987.77, now); // B5
-                osc.frequency.setValueAtTime(1318.51, now + 0.08); // E6
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
-                osc.start(now);
-                osc.stop(now + 0.25);
-            } else if (type === 'buy') {
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(523.25, now); // C5
-                osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
-                osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
-                gain.gain.setValueAtTime(0.15, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-                osc.start(now);
-                osc.stop(now + 0.3);
-            } else if (type === 'alert') {
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(300, now);
-                osc.frequency.linearRampToValueAtTime(150, now + 0.2);
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
-                osc.start(now);
-                osc.stop(now + 0.2);
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, now);
+                    osc.frequency.exponentialRampToValueAtTime(200, now + 0.04);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.04);
+                    osc.start(now);
+                    osc.stop(now + 0.04);
+                } else if (type === 'coin') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(987, now);
+                    osc.frequency.setValueAtTime(1318, now + 0.08);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                } else if (type === 'buy') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(523, now);
+                    osc.frequency.setValueAtTime(659, now + 0.07);
+                    osc.frequency.setValueAtTime(783, now + 0.14);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'alert') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.linearRampToValueAtTime(120, now + 0.2);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                }
+            } catch (err) {
+                console.log("Audio Error:", err);
             }
         }
 
@@ -412,14 +434,17 @@
             document.getElementById('sound-btn').innerText = soundEnabled ? "🔊 AUDIO: ON" : "🔇 AUDIO: OFF";
         }
 
-        // --- VISUAL EFFECTS (VFX) ---
+        // --- VISUAL EFFECTS ENGINE ---
         function createFloatingText(e, text) {
             const el = document.createElement('div');
             el.className = 'floating-text';
             el.innerText = text;
 
-            const x = e.clientX || (window.innerWidth / 2);
-            const y = e.clientY || (window.innerHeight / 2);
+            let x = e ? e.clientX : window.innerWidth / 2;
+            let y = e ? e.clientY : window.innerHeight / 2;
+
+            if (!x || x === 0) x = window.innerWidth / 2;
+            if (!y || y === 0) y = window.innerHeight / 2;
 
             el.style.left = (x - 20) + 'px';
             el.style.top = (y - 20) + 'px';
@@ -431,10 +456,10 @@
         function triggerFlash(colorClass) {
             const term = document.getElementById('terminal');
             term.classList.add(colorClass);
-            setTimeout(() => term.classList.remove(colorClass), 300);
+            setTimeout(() => term.classList.remove(colorClass), 250);
         }
 
-        // --- LOGIK NAVIGASI ---
+        // --- NAVIGATION ENGINE ---
         function showSection(id) {
             playSound('click');
             document.querySelectorAll('.content-box').forEach(box => box.classList.remove('active'));
@@ -442,12 +467,10 @@
             if (target) target.classList.add('active');
         }
 
-        // --- LOGIK SIMULATOR BISNIS ---
+        // --- BUSINESS SIMULATOR ENGINE ---
         let modal = 0;
         let incomePerSec = 0;
         let staffCount = 0;
-        let mktCount = 0;
-        let corpCount = 0;
 
         function addLog(msg) {
             const logBox = document.getElementById('log-box');
@@ -488,26 +511,27 @@
                 staffCount++;
                 playSound('buy');
                 triggerFlash('flash-green');
+                createFloatingText(e, 'Programmer +1');
                 addLog(`Berhasil merekrut Programmer ke-${staffCount}! (+Rp 50rb/dtk)`);
             } else if (type === 'mkt' && modal >= 2000000) {
                 modal -= 2000000;
                 incomePerSec += 250000;
-                mktCount++;
                 playSound('buy');
                 triggerFlash('flash-green');
+                createFloatingText(e, 'Campaign Active!');
                 addLog(`Kampanye Digital Marketing Aktif! (+Rp 250rb/dtk)`);
             } else if (type === 'corp' && modal >= 10000000) {
                 modal -= 10000000;
                 incomePerSec += 1500000;
-                corpCount++;
                 playSound('buy');
                 triggerFlash('flash-green');
+                createFloatingText(e, 'New Office!');
                 addLog(`Sewa Kantor Baru Sukses! Farhan Enterprise Makin Besar!`);
             }
             updateUI();
         }
 
-        // Otomatisasi Pendapatan Pasif per Detik
+        // Timer Pasif
         setInterval(() => {
             if (incomePerSec > 0) {
                 modal += incomePerSec;
@@ -515,28 +539,27 @@
             }
         }, 1000);
 
-        // Event Acak Bisnis (Setiap 20 Detik)
+        // Random Event (20 Detik)
         setInterval(() => {
             if (modal > 1000000) {
                 const rand = Math.random();
-                if (rand > 0.6) {
-                    const bonus = Math.floor(incomePerSec * 5) + 200000;
+                if (rand > 0.65) {
+                    const bonus = Math.floor(incomePerSec * 4) + 250000;
                     modal += bonus;
                     playSound('buy');
                     triggerFlash('flash-green');
-                    addLog(`<span style="color: var(--green);">[EVENT] Investasi Masuk! Farhan dapat bonus ${formatRupiah(bonus)}</span>`);
+                    addLog(`<span style="color: var(--green);">[EVENT] Investor masuk! Bonus ${formatRupiah(bonus)}</span>`);
                 } else if (rand < 0.2) {
                     const rugi = 150000;
                     modal = Math.max(0, modal - rugi);
                     playSound('alert');
                     triggerFlash('flash-red');
-                    addLog(`<span style="color: var(--red);">[EVENT] Server Error / Biaya Perawatan -${formatRupiah(rugi)}</span>`);
+                    addLog(`<span style="color: var(--red);">[EVENT] Maintenance Server -${formatRupiah(rugi)}</span>`);
                 }
                 updateUI();
             }
         }, 20000);
 
-        // Set Default Section
         showSection('bio');
         updateUI();
     </script>
