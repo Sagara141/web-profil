@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farhan OS v1.0 - Terminal & Portfolio</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --term-bg: #161b22;
+            --term-border: #30363d;
+            --green: #3fb950;
+            --cyan: #58a6ff;
+            --purple: #bc8cff;
+            --text-color: #c9d1d9;
+            --white: #f0f6fc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .terminal {
+            width: 100%;
+            max-width: 750px;
+            background: var(--term-bg);
+            border: 1px solid var(--term-border);
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+        }
+
+        /* Terminal Bar Top */
+        .term-header {
+            background: #21262d;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--term-border);
+        }
+
+        .dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27c93f; }
+
+        .term-title {
+            color: #8b949e;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        /* Terminal Body */
+        .term-body {
+            padding: 20px;
+            min-height: 400px;
+            max-height: 550px;
+            overflow-y: auto;
+        }
+
+        .command-line {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .prompt {
+            color: var(--green);
+            font-weight: bold;
+        }
+
+        .path {
+            color: var(--cyan);
+        }
+
+        .highlight {
+            color: var(--purple);
+            font-weight: bold;
+        }
+
+        .white {
+            color: var(--white);
+            font-weight: bold;
+        }
+
+        /* Interactive Menu Buttons */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .btn-menu {
+            background: #21262d;
+            border: 1px solid var(--term-border);
+            color: var(--cyan);
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .btn-menu:hover {
+            background: var(--cyan);
+            color: #0d1117;
+        }
+
+        /* Content Box Display */
+        .content-box {
+            background: #0d1117;
+            border: 1px dashed var(--term-border);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .content-box.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Interactive Game Inside Terminal */
+        .biz-game {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .biz-btn {
+            background: var(--green);
+            color: #0d1117;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .biz-btn:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="terminal">
+        <!-- Header Windows Bar -->
+        <div class="term-header">
+            <div class="dots">
+                <div class="dot dot-red"></div>
+                <div class="dot dot-yellow"></div>
+                <div class="dot dot-green"></div>
+            </div>
+            <div class="term-title">farhan@user-desktop:~</div>
+            <div style="width: 40px;"></div>
+        </div>
+
+        <!-- Terminal Output -->
+        <div class="term-body">
+            <div class="command-line">
+                <span class="prompt">farhan@system</span>:<span class="path">~</span>$ ./init_biodata.sh<br>
+                <span style="color: #8b949e;">[SYSTEM OK] Loading Profile Data... Done.</span>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <p>===========================================</p>
+                <p class="white"> SELAMAT DATANG DI SYSTEM FARHAN NUR HAKIM</p>
+                <p>===========================================</p>
+                <p style="margin-top: 5px; color: #8b949e;">Pilih perintah di bawah untuk melihat informasi:</p>
+            </div>
+
+            <!-- Tombol Navigasi Sistem -->
+            <div class="menu-grid">
+                <button class="btn-menu" onclick="showSection('bio')">[1] Biodata</button>
+                <button class="btn-menu" onclick="showSection('cita')">[2] Cita-Cita</button>
+                <button class="btn-menu" onclick="showSection('hobi')">[3] Hobi Game</button>
+                <button class="btn-menu" onclick="showSection('sim')">[4] Simulasi Bisnis</button>
+            </div>
+
+            <!-- SECTION 1: BIODATA -->
+            <div id="sec-bio" class="content-box">
+                <p class="highlight">> INFO BIODATA PRIBADI</p>
+                <br>
+                <p>• <span class="white">Nama Lengkap</span> : Farhan Nur Hakim</p>
+                <p>• <span class="white">Tanggal Lahir</span> : 21 Desember 2010</p>
+                <p>• <span class="white">Alamat</span>       : Jl. Cisitu Indah, Bandung</p>
+                <p>• <span class="white">Status Alamat</span> : <span style="color: var(--green);">Verified [Bandung, Jawa Barat]</span></p>
+            </div>
+
+            <!-- SECTION 2: CITA-CITA -->
+            <div id="sec-cita" class="content-box">
+                <p class="highlight">> CITA-CITA & TARGET KARIR</p>
+                <br>
+                <p>• <span class="white">Impian Utama</span> : Pengusaha Sukses</p>
+                <p>• <span class="white">Visi</span>         : Membangun ekosistem usaha/bisnis mandiri berbasis teknologi & inovasi digital.</p>
+                <p>• <span class="white">Motto</span>        : "Mulai dari kecil, berpikir besar, eksekusi cepat."</p>
+            </div>
+
+            <!-- SECTION 3: HOBI -->
+            <div id="sec-hobi" class="content-box">
+                <p class="highlight">> DATA HOBI & HIBURAN</p>
+                <br>
+                <p>• <span class="white">Hobi Utama</span>   : Main Game (Gaming)</p>
+                <p>• <span class="white">Fokus Game</span>  : Strategy, Simulation, & Action PC/Mobile</p>
+                <p>• <span class="white">Manfaat</span>     : Melatih pengambilan keputusan cepat & pemikiran strategis.</p>
+            </div>
+
+            <!-- SECTION 4: SIMULASI BISNIS (MINI GAME) -->
+            <div id="sec-sim" class="content-box">
+                <p class="highlight">> SIMULATOR BISNIS FARHAN</p>
+                <div class="biz-game">
+                    <p style="margin-bottom: 8px;">Aset Perusahaan Saat Ini:</p>
+                    <h2 id="kas" style="color: var(--green); font-size: 22px;">Rp 0</h2>
+                    <button class="biz-btn" onclick="tambahAset()">+ Investasi Bisnis (Rp 250.000)</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function showSection(id) {
+            // Sembunyikan semua box
+            document.querySelectorAll('.content-box').forEach(box => {
+                box.classList.remove('active');
+            });
+
+            // Tampilkan box yang dipilih
+            const target = document.getElementById('sec-' + id);
+            if (target) {
+                target.classList.add('active');
+            }
+        }
+
+        // Mini Game Simulasi
+        let modalUang = 0;
+        function tambahAset() {
+            modalUang += 250000;
+            document.getElementById('kas').innerText = 'Rp ' + modalUang.toLocaleString('id-ID');
+        }
+
+        // Secara default tampilkan biodata saat pertama dibuka
+        showSection('bio');
+    </script>
+</body>
+</html>
