@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farhan OS v1.0 - Terminal & Portfolio</title>
+    <title>Farhan OS v2.0 - Advanced Business Simulator</title>
     <style>
         :root {
             --bg-color: #0d1117;
@@ -12,6 +12,8 @@
             --green: #3fb950;
             --cyan: #58a6ff;
             --purple: #bc8cff;
+            --yellow: #d29922;
+            --red: #f85149;
             --text-color: #c9d1d9;
             --white: #f0f6fc;
         }
@@ -35,7 +37,7 @@
 
         .terminal {
             width: 100%;
-            max-width: 750px;
+            max-width: 800px;
             background: var(--term-bg);
             border: 1px solid var(--term-border);
             border-radius: 12px;
@@ -53,16 +55,8 @@
             border-bottom: 1px solid var(--term-border);
         }
 
-        .dots {
-            display: flex;
-            gap: 8px;
-        }
-
-        .dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
+        .dots { display: flex; gap: 8px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
         .dot-red { background: #ff5f56; }
         .dot-yellow { background: #ffbd2e; }
         .dot-green { background: #27c93f; }
@@ -73,42 +67,22 @@
             font-weight: bold;
         }
 
-        /* Terminal Body */
         .term-body {
             padding: 20px;
-            min-height: 400px;
-            max-height: 550px;
+            max-height: 600px;
             overflow-y: auto;
         }
 
-        .command-line {
-            margin-bottom: 15px;
-            line-height: 1.5;
-        }
+        .command-line { margin-bottom: 15px; line-height: 1.5; }
+        .prompt { color: var(--green); font-weight: bold; }
+        .path { color: var(--cyan); }
+        .highlight { color: var(--purple); font-weight: bold; }
+        .white { color: var(--white); font-weight: bold; }
 
-        .prompt {
-            color: var(--green);
-            font-weight: bold;
-        }
-
-        .path {
-            color: var(--cyan);
-        }
-
-        .highlight {
-            color: var(--purple);
-            font-weight: bold;
-        }
-
-        .white {
-            color: var(--white);
-            font-weight: bold;
-        }
-
-        /* Interactive Menu Buttons */
+        /* Menu Buttons */
         .menu-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
             gap: 10px;
             margin: 15px 0;
         }
@@ -126,12 +100,8 @@
             transition: all 0.2s;
         }
 
-        .btn-menu:hover {
-            background: var(--cyan);
-            color: #0d1117;
-        }
+        .btn-menu:hover { background: var(--cyan); color: #0d1117; }
 
-        /* Content Box Display */
         .content-box {
             background: #0d1117;
             border: 1px dashed var(--term-border);
@@ -151,33 +121,68 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Interactive Game Inside Terminal */
-        .biz-game {
-            text-align: center;
-            padding: 10px;
+        /* Business Simulator Layout */
+        .sim-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
+            background: #161b22;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--term-border);
         }
 
-        .biz-btn {
-            background: var(--green);
-            color: #0d1117;
-            border: none;
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: bold;
+        .stat-item { font-size: 13px; }
+        .stat-val { font-size: 16px; font-weight: bold; margin-top: 4px; }
+
+        .biz-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-action {
+            background: #21262d;
+            border: 1px solid var(--term-border);
+            color: var(--white);
+            padding: 12px;
             border-radius: 6px;
             cursor: pointer;
-            margin-top: 10px;
+            text-align: left;
+            transition: 0.2s;
         }
 
-        .biz-btn:active {
-            transform: scale(0.98);
+        .btn-action:hover:not(:disabled) {
+            border-color: var(--green);
+            background: #1f2937;
+        }
+
+        .btn-action:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .action-title { font-weight: bold; color: var(--green); font-size: 13px; }
+        .action-desc { font-size: 11px; color: #8b949e; margin-top: 3px; }
+
+        .log-box {
+            background: #000;
+            border: 1px solid var(--term-border);
+            color: var(--yellow);
+            font-size: 12px;
+            padding: 10px;
+            height: 70px;
+            overflow-y: auto;
+            border-radius: 6px;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
 
     <div class="terminal">
-        <!-- Header Windows Bar -->
         <div class="term-header">
             <div class="dots">
                 <div class="dot dot-red"></div>
@@ -188,21 +193,19 @@
             <div style="width: 40px;"></div>
         </div>
 
-        <!-- Terminal Output -->
         <div class="term-body">
             <div class="command-line">
                 <span class="prompt">farhan@system</span>:<span class="path">~</span>$ ./init_biodata.sh<br>
-                <span style="color: #8b949e;">[SYSTEM OK] Loading Profile Data... Done.</span>
+                <span style="color: #8b949e;">[SYSTEM OK] Farhan Enterprise Engine v2.0 Loaded...</span>
             </div>
 
             <div style="margin-bottom: 20px;">
                 <p>===========================================</p>
                 <p class="white"> SELAMAT DATANG DI SYSTEM FARHAN NUR HAKIM</p>
                 <p>===========================================</p>
-                <p style="margin-top: 5px; color: #8b949e;">Pilih perintah di bawah untuk melihat informasi:</p>
             </div>
 
-            <!-- Tombol Navigasi Sistem -->
+            <!-- Tombol Navigasi -->
             <div class="menu-grid">
                 <button class="btn-menu" onclick="showSection('bio')">[1] Biodata</button>
                 <button class="btn-menu" onclick="showSection('cita')">[2] Cita-Cita</button>
@@ -212,39 +215,75 @@
 
             <!-- SECTION 1: BIODATA -->
             <div id="sec-bio" class="content-box">
-                <p class="highlight">> INFO BIODATA PRIBADI</p>
-                <br>
+                <p class="highlight">> INFO BIODATA PRIBADI</p><br>
                 <p>• <span class="white">Nama Lengkap</span> : Farhan Nur Hakim</p>
                 <p>• <span class="white">Tanggal Lahir</span> : 21 Desember 2010</p>
                 <p>• <span class="white">Alamat</span>       : Jl. Cisitu Indah, Bandung</p>
-                <p>• <span class="white">Status Alamat</span> : <span style="color: var(--green);">Verified [Bandung, Jawa Barat]</span></p>
+                <p>• <span class="white">Status</span>       : <span style="color: var(--green);">Pelajar / Future Entrepreneur</span></p>
             </div>
 
             <!-- SECTION 2: CITA-CITA -->
             <div id="sec-cita" class="content-box">
-                <p class="highlight">> CITA-CITA & TARGET KARIR</p>
-                <br>
+                <p class="highlight">> CITA-CITA & TARGET KARIR</p><br>
                 <p>• <span class="white">Impian Utama</span> : Pengusaha Sukses</p>
-                <p>• <span class="white">Visi</span>         : Membangun ekosistem usaha/bisnis mandiri berbasis teknologi & inovasi digital.</p>
-                <p>• <span class="white">Motto</span>        : "Mulai dari kecil, berpikir besar, eksekusi cepat."</p>
+                <p>• <span class="white">Visi</span>         : Membangun ekosistem bisnis mandiri berbasis teknologi & inovasi digital.</p>
             </div>
 
             <!-- SECTION 3: HOBI -->
             <div id="sec-hobi" class="content-box">
-                <p class="highlight">> DATA HOBI & HIBURAN</p>
-                <br>
+                <p class="highlight">> DATA HOBI & HIBURAN</p><br>
                 <p>• <span class="white">Hobi Utama</span>   : Main Game (Gaming)</p>
-                <p>• <span class="white">Fokus Game</span>  : Strategy, Simulation, & Action PC/Mobile</p>
-                <p>• <span class="white">Manfaat</span>     : Melatih pengambilan keputusan cepat & pemikiran strategis.</p>
+                <p>• <span class="white">Fokus Game</span>  : Strategy, Simulation, & PC Action</p>
             </div>
 
-            <!-- SECTION 4: SIMULASI BISNIS (MINI GAME) -->
+            <!-- SECTION 4: SIMULASI BISNIS ADVANCED -->
             <div id="sec-sim" class="content-box">
-                <p class="highlight">> SIMULATOR BISNIS FARHAN</p>
-                <div class="biz-game">
-                    <p style="margin-bottom: 8px;">Aset Perusahaan Saat Ini:</p>
-                    <h2 id="kas" style="color: var(--green); font-size: 22px;">Rp 0</h2>
-                    <button class="biz-btn" onclick="tambahAset()">+ Investasi Bisnis (Rp 250.000)</button>
+                <p class="highlight">> FARHAN ENTERPRISE SIMULATOR v2.0</p>
+                <p style="font-size: 11px; color: #8b949e; margin-bottom: 12px;">Kelola modal bisnis Farhan dari Nol hingga jadi Raksasa Teknologi!</p>
+
+                <!-- Dashboard Statistik -->
+                <div class="sim-dashboard">
+                    <div class="stat-item">
+                        <div>Kas Modal:</div>
+                        <div id="kas" class="stat-val" style="color: var(--green);">Rp 0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div>Pendapatan Pasif:</div>
+                        <div id="pasif" class="stat-val" style="color: var(--cyan);">+Rp 0 /detik</div>
+                    </div>
+                    <div class="stat-item">
+                        <div>Level Perusahaan:</div>
+                        <div id="level-biz" class="stat-val" style="color: var(--purple);">Startup Rintisan</div>
+                    </div>
+                </div>
+
+                <!-- Tombol Eksekusi Utam -->
+                <button class="btn-action" style="width: 100%; text-align: center; background: #1f2937; margin-bottom: 12px;" onclick="klikBisnis()">
+                    <div class="action-title" style="font-size: 14px;">🚀 TERIMA PROYEK FREELANCE (+Rp 100.000)</div>
+                </button>
+
+                <!-- Pilihan Upgrade & Rekrutmen -->
+                <div class="highlight" style="font-size: 12px; margin-top: 10px;">> OPSI EKSPANSI & OTOMATISASI:</div>
+                <div class="biz-actions">
+                    <button id="btn-staff" class="btn-action" onclick="buyUpgrade('staff')">
+                        <div class="action-title">Rekrut Programmer (Rp 500rb)</div>
+                        <div class="action-desc">+Rp 50.000 /detik otomatis</div>
+                    </button>
+
+                    <button id="btn-mkt" class="btn-action" onclick="buyUpgrade('mkt')">
+                        <div class="action-title">Pasang Iklan Digital (Rp 2 Juta)</div>
+                        <div class="action-desc">+Rp 250.000 /detik otomatis</div>
+                    </button>
+
+                    <button id="btn-corp" class="btn-action" onclick="buyUpgrade('corp')">
+                        <div class="action-title">Sewa Kantor Eksekutif (Rp 10 Juta)</div>
+                        <div class="action-desc">+Rp 1.500.000 /detik otomatis</div>
+                    </button>
+                </div>
+
+                <!-- Terminal Event Log -->
+                <div class="log-box" id="log-box">
+                    [SYSTEM] Game Dimulai! Klik 'Terima Proyek' untuk mengumpulkan modal pertama.
                 </div>
             </div>
 
@@ -253,27 +292,98 @@
 
     <script>
         function showSection(id) {
-            // Sembunyikan semua box
-            document.querySelectorAll('.content-box').forEach(box => {
-                box.classList.remove('active');
-            });
-
-            // Tampilkan box yang dipilih
+            document.querySelectorAll('.content-box').forEach(box => box.classList.remove('active'));
             const target = document.getElementById('sec-' + id);
-            if (target) {
-                target.classList.add('active');
+            if (target) target.classList.add('active');
+        }
+
+        // --- SISTEM SIMULASI BISNIS ---
+        let modal = 0;
+        let incomePerSec = 0;
+        let staffCount = 0;
+        let mktCount = 0;
+        let corpCount = 0;
+
+        function addLog(msg) {
+            const logBox = document.getElementById('log-box');
+            logBox.innerHTML = `> ${msg}<br>${logBox.innerHTML}`;
+        }
+
+        function formatRupiah(val) {
+            return 'Rp ' + val.toLocaleString('id-ID');
+        }
+
+        function updateUI() {
+            document.getElementById('kas').innerText = formatRupiah(modal);
+            document.getElementById('pasif').innerText = '+' + formatRupiah(incomePerSec) + ' /detik';
+
+            // Level Perusahaan Logic
+            const lvlElement = document.getElementById('level-biz');
+            if (modal >= 50000000) lvlElement.innerText = "Tech Conglomerate 🌐";
+            else if (modal >= 10000000) lvlElement.innerText = "PT Nasional 🏢";
+            else if (modal >= 2000000) lvlElement.innerText = "Startup Digital 💻";
+            else lvlElement.innerText = "Usia Rintisan 💡";
+
+            // Disable buttons if not enough money
+            document.getElementById('btn-staff').disabled = modal < 500000;
+            document.getElementById('btn-mkt').disabled = modal < 2000000;
+            document.getElementById('btn-corp').disabled = modal < 10000000;
+        }
+
+        function klikBisnis() {
+            modal += 100000;
+            addLog("Proyek selesai! Dapat modal +Rp 100.000");
+            updateUI();
+        }
+
+        function buyUpgrade(type) {
+            if (type === 'staff' && modal >= 500000) {
+                modal -= 500000;
+                incomePerSec += 50000;
+                staffCount++;
+                addLog(`Berhasil merekrut Programmer ke-${staffCount}! (+Rp 50rb/dtk)`);
+            } else if (type === 'mkt' && modal >= 2000000) {
+                modal -= 2000000;
+                incomePerSec += 250000;
+                mktCount++;
+                addLog(`Kampanye Digital Marketing Aktif! (+Rp 250rb/dtk)`);
+            } else if (type === 'corp' && modal >= 10000000) {
+                modal -= 10000000;
+                incomePerSec += 1500000;
+                corpCount++;
+                addLog(`Sewa Kantor Baru Sukses! Farhan Enterprise Makin Besar!`);
             }
+            updateUI();
         }
 
-        // Mini Game Simulasi
-        let modalUang = 0;
-        function tambahAset() {
-            modalUang += 250000;
-            document.getElementById('kas').innerText = 'Rp ' + modalUang.toLocaleString('id-ID');
-        }
+        // Otomatisasi Pendapatan Pasif per Detik
+        setInterval(() => {
+            if (incomePerSec > 0) {
+                modal += incomePerSec;
+                updateUI();
+            }
+        }, 1000);
 
-        // Secara default tampilkan biodata saat pertama dibuka
+        // Event Acak Bisnis (Setiap 20 Detik)
+        setInterval(() => {
+            if (modal > 1000000) {
+                const rand = Math.random();
+                if (rand > 0.6) {
+                    const bonus = Math.floor(incomePerSec * 5) + 200000;
+                    modal += bonus;
+                    addLog(`<span style="color: var(--green);">[EVENT] Investasi Masuk! Farhan dapat bonus ${formatRupiah(bonus)}</span>`);
+                } else if (rand < 0.2) {
+                    const rugi = 150000;
+                    modal = Math.max(0, modal - rugi);
+                    addLog(`<span style="color: var(--red);">[EVENT] Server Error / Biaya Perawatan -${formatRupiah(rugi)}</span>`);
+                }
+                updateUI();
+            }
+        }, 20000);
+
+        // Set Default Section
         showSection('bio');
+        updateUI();
     </script>
 </body>
 </html>
