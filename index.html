@@ -1,567 +1,816 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farhan OS v3.1 - Fix Sound & Visual FX</title>
-    <style>
-        :root {
-            --bg-color: #0d1117;
-            --term-bg: #161b22;
-            --term-border: #30363d;
-            --green: #3fb950;
-            --cyan: #58a6ff;
-            --purple: #bc8cff;
-            --yellow: #d29922;
-            --red: #f85149;
-            --text-color: #c9d1d9;
-            --white: #f0f6fc;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faris | Personal Portfolio</title>
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Courier New', Courier, monospace;
-            user-select: none;
-        }
+<style>
+/* ===== CSS ===== */
+:root {
+    --bg: #080d18;
+    --card: #111a2b;
+    --text: #f4f7ff;
+    --muted: #a4b0c4;
+    --blue: #3b82f6;
+    --border: rgba(255,255,255,.1);
+}
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 15px;
-            overflow: hidden;
-            position: relative;
-        }
+body.light {
+    --bg: #f2f5fb;
+    --card: #ffffff;
+    --text: #172033;
+    --muted: #606b7c;
+    --border: rgba(0,0,0,.1);
+}
 
-        /* CRT Overlay Filter */
-        body::before {
-            content: " ";
-            display: block;
-            position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-            background-size: 100% 4px;
-            z-index: 90;
-            pointer-events: none;
-            opacity: 0.5;
-        }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+}
 
-        /* Overlay Start Screen */
-        #start-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(13, 17, 23, 0.95);
-            z-index: 999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            text-align: center;
-            border: 2px solid var(--cyan);
-        }
+body {
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    transition: .3s;
+}
 
-        #start-overlay h1 {
-            color: var(--green);
-            font-size: 24px;
-            margin-bottom: 15px;
-            text-shadow: 0 0 10px rgba(63, 185, 80, 0.5);
-        }
+a {
+    color: inherit;
+    text-decoration: none;
+}
 
-        #start-overlay p {
-            color: var(--cyan);
-            font-size: 14px;
-            animation: blink 1.2s infinite;
-        }
+.container {
+    width: min(1100px, 90%);
+    margin: auto;
+}
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+}
 
-        .terminal {
-            width: 100%;
-            max-width: 820px;
-            background: var(--term-bg);
-            border: 1px solid var(--term-border);
-            border-radius: 12px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), 0 0 15px rgba(88, 166, 255, 0.1);
-            overflow: hidden;
-            position: relative;
-            transition: box-shadow 0.2s;
-        }
+nav {
+    height: 72px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-        .terminal.flash-green { box-shadow: 0 0 40px rgba(63, 185, 80, 0.8); }
-        .terminal.flash-red { box-shadow: 0 0 40px rgba(248, 81, 73, 0.8); }
+.logo {
+    font-size: 25px;
+    font-weight: bold;
+}
 
-        .term-header {
-            background: #21262d;
-            padding: 10px 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--term-border);
-        }
+.logo span, .blue {
+    color: var(--blue);
+}
 
-        .dots { display: flex; gap: 8px; }
-        .dot { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; }
-        .dot-red { background: #ff5f56; }
-        .dot-yellow { background: #ffbd2e; }
-        .dot-green { background: #27c93f; }
+.nav-links {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+}
 
-        .term-title { color: #8b949e; font-size: 13px; font-weight: bold; }
+.nav-links a:hover {
+    color: var(--blue);
+}
 
-        .sound-toggle {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid var(--term-border);
-            color: var(--cyan);
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 11px;
-            cursor: pointer;
-        }
+.nav-actions {
+    display: flex;
+    gap: 8px;
+}
 
-        .term-body { padding: 20px; max-height: 600px; overflow-y: auto; }
-        .command-line { margin-bottom: 15px; line-height: 1.5; }
-        .prompt { color: var(--green); font-weight: bold; }
-        .path { color: var(--cyan); }
-        .highlight { color: var(--purple); font-weight: bold; }
-        .white { color: var(--white); font-weight: bold; }
+.icon-btn {
+    padding: 9px 12px;
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 17px;
+}
 
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 10px;
-            margin: 15px 0;
-        }
+.menu-btn {
+    display: none;
+}
 
-        .btn-menu {
-            background: #21262d;
-            border: 1px solid var(--term-border);
-            color: var(--cyan);
-            padding: 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            text-align: center;
-            font-weight: bold;
-            font-size: 13px;
-            transition: all 0.2s;
-        }
+section {
+    padding: 100px 0;
+}
 
-        .btn-menu:hover { background: var(--cyan); color: #0d1117; transform: translateY(-2px); }
+#home {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding-top: 130px;
+}
 
-        .content-box {
-            background: #0d1117;
-            border: 1px dashed var(--term-border);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-            display: none;
-        }
+.hero {
+    display: grid;
+    grid-template-columns: 1.2fr .8fr;
+    align-items: center;
+    gap: 40px;
+}
 
-        .content-box.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+.badge {
+    display: inline-block;
+    padding: 6px 14px;
+    color: #60a5fa;
+    background: rgba(59,130,246,.12);
+    border-radius: 30px;
+    margin-bottom: 20px;
+}
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+h1 {
+    font-size: clamp(40px, 6vw, 68px);
+    line-height: 1.15;
+}
 
-        .sim-dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
-            margin-bottom: 15px;
-            background: #161b22;
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid var(--term-border);
-        }
+h2 {
+    font-size: clamp(28px, 4vw, 40px);
+}
 
-        .stat-item { font-size: 13px; }
-        .stat-val { font-size: 16px; font-weight: bold; margin-top: 4px; }
+.hero h1 span {
+    color: var(--blue);
+}
 
-        .biz-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-        }
+.typing {
+    font-size: 22px;
+    color: #60a5fa;
+    margin-top: 12px;
+    font-weight: bold;
+}
 
-        .btn-action {
-            background: #21262d;
-            border: 1px solid var(--term-border);
-            color: var(--white);
-            padding: 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            text-align: left;
-            transition: 0.2s;
-        }
+p {
+    color: var(--muted);
+}
 
-        .btn-action:hover:not(:disabled) {
-            border-color: var(--green);
-            background: #1f2937;
-        }
+.hero p {
+    margin: 20px 0;
+    max-width: 570px;
+}
 
-        .btn-action:disabled { opacity: 0.4; cursor: not-allowed; }
-        .action-title { font-weight: bold; color: var(--green); font-size: 13px; }
-        .action-desc { font-size: 11px; color: #8b949e; margin-top: 3px; }
+.buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 25px;
+}
 
-        .log-box {
-            background: #000;
-            border: 1px solid var(--term-border);
-            color: var(--yellow);
-            font-size: 12px;
-            padding: 10px;
-            height: 75px;
-            overflow-y: auto;
-            border-radius: 6px;
-            margin-top: 15px;
-        }
+.btn {
+    display: inline-block;
+    padding: 12px 20px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    background: var(--card);
+    color: var(--text);
+    transition: .25s;
+}
 
-        /* Visual FX Text Floating */
-        .floating-text {
-            position: fixed;
-            color: var(--green);
-            font-weight: bold;
-            font-size: 18px;
-            pointer-events: none;
-            animation: floatUp 0.8s ease-out forwards;
-            z-index: 1000;
-            text-shadow: 0 0 10px rgba(63, 185, 80, 0.9);
-        }
+.btn.primary {
+    background: var(--blue);
+    color: white;
+    border-color: var(--blue);
+}
 
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-40px) scale(1.3); }
-        }
-    </style>
+.btn:hover {
+    transform: translateY(-3px);
+}
+
+.avatar {
+    width: 280px;
+    height: 280px;
+    margin: auto;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #172554);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 100px;
+    font-weight: bold;
+    box-shadow: 0 0 70px rgba(59,130,246,.25);
+    border: 6px solid var(--card);
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 45px;
+}
+
+.section-title p {
+    margin-top: 10px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+}
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 25px;
+    transition: .3s;
+}
+
+.card:hover {
+    border-color: var(--blue);
+    transform: translateY(-4px);
+}
+
+.card h3 {
+    margin-bottom: 12px;
+}
+
+.bio-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.bio-row span:first-child {
+    color: var(--muted);
+}
+
+.bio-row span:last-child {
+    text-align: right;
+    font-weight: bold;
+}
+
+.skill {
+    margin: 18px 0;
+}
+
+.skill-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.bar {
+    height: 8px;
+    background: var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #2563eb, #60a5fa);
+    border-radius: 10px;
+    transition: width 1.2s;
+}
+
+.projects {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.project-icon {
+    font-size: 42px;
+    margin-bottom: 12px;
+}
+
+.project p {
+    margin: 12px 0;
+}
+
+.tags {
+    color: #60a5fa;
+    font-size: 13px;
+    margin: 12px 0;
+}
+
+.timeline {
+    max-width: 700px;
+    margin: auto;
+}
+
+.timeline .card {
+    margin-bottom: 18px;
+    border-left: 4px solid var(--blue);
+}
+
+.hobbies {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.hobby {
+    text-align: center;
+}
+
+.hobby div {
+    font-size: 35px;
+    margin-bottom: 8px;
+}
+
+.goal {
+    max-width: 800px;
+    margin: auto;
+    text-align: center;
+    background: linear-gradient(135deg, var(--card), rgba(37,99,235,.15));
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+}
+
+.goal p {
+    margin-top: 15px;
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: .8fr 1.2fr;
+    gap: 22px;
+}
+
+form {
+    display: grid;
+    gap: 14px;
+}
+
+label {
+    font-size: 14px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 13px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+}
+
+textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+footer {
+    text-align: center;
+    border-top: 1px solid var(--border);
+    padding: 25px;
+}
+
+.reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: .7s;
+}
+
+.reveal.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#backTop {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: none;
+    z-index: 50;
+}
+
+#toast {
+    position: fixed;
+    bottom: 75px;
+    right: 20px;
+    background: var(--card);
+    border: 1px solid var(--blue);
+    border-radius: 10px;
+    padding: 15px;
+    display: none;
+    z-index: 200;
+}
+
+#toast.show {
+    display: block;
+}
+
+@media (max-width: 800px) {
+    .hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .hero p {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .buttons {
+        justify-content: center;
+    }
+
+    .avatar {
+        width: 210px;
+        height: 210px;
+        font-size: 75px;
+    }
+
+    .projects {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .nav-links {
+        position: absolute;
+        top: 72px;
+        left: 0;
+        width: 100%;
+        background: var(--card);
+        display: none;
+        flex-direction: column;
+        padding: 25px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+
+    .menu-btn {
+        display: inline-block;
+    }
+}
+
+@media (max-width: 550px) {
+    section {
+        padding: 75px 0;
+    }
+
+    .grid, .projects {
+        grid-template-columns: 1fr;
+    }
+
+    .hobbies {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .bio-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .bio-row span:last-child {
+        text-align: left;
+    }
+
+    .goal {
+        padding: 28px 20px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+    }
+}
+</style>
 </head>
+
 <body>
 
-    <!-- START OVERLAY UNTUK MENGIZINKAN AUDIO BROWSER -->
-    <div id="start-overlay" onclick="startSystem()">
-        <h1>[ FARHAN OS v3.1 ]</h1>
-        <p>KLIK DI MANA SAJA UNTUK MEMULAI SYSTEM & AUDIO FX</p>
-    </div>
+<header>
+    <nav class="container">
+        <a class="logo" href="#home">F<span>.</span></a>
 
-    <div class="terminal" id="terminal">
-        <div class="term-header">
-            <div class="dots">
-                <div class="dot dot-red" onclick="playSound('click')"></div>
-                <div class="dot dot-yellow" onclick="playSound('click')"></div>
-                <div class="dot dot-green" onclick="playSound('click')"></div>
-            </div>
-            <div class="term-title">farhan@user-desktop:~ (OS v3.1)</div>
-            <button class="sound-toggle" id="sound-btn" onclick="toggleSound()">🔊 AUDIO: ON</button>
+        <div class="nav-links" id="navLinks">
+            <a href="#home">Home</a>
+            <a href="#about">Tentang</a>
+            <a href="#skills">Skills</a>
+            <a href="#projects">Portfolio</a>
+            <a href="#education">Pendidikan</a>
+            <a href="#contact">Kontak</a>
         </div>
 
-        <div class="term-body">
-            <div class="command-line">
-                <span class="prompt">farhan@system</span>:<span class="path">~</span>$ ./init_biodata.sh --fix-audio<br>
-                <span style="color: #8b949e;">[SYSTEM OK] Sound Synthesizer & Graphic Engine Active!</span>
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <p>===========================================</p>
-                <p class="white"> SELAMAT DATANG DI SYSTEM FARHAN NUR HAKIM</p>
-                <p>===========================================</p>
-            </div>
-
-            <div class="menu-grid">
-                <button class="btn-menu" onclick="showSection('bio')">[1] Biodata</button>
-                <button class="btn-menu" onclick="showSection('cita')">[2] Cita-Cita</button>
-                <button class="btn-menu" onclick="showSection('hobi')">[3] Hobi Game</button>
-                <button class="btn-menu" onclick="showSection('sim')">[4] Simulasi Bisnis</button>
-            </div>
-
-            <!-- SECTION 1: BIODATA -->
-            <div id="sec-bio" class="content-box">
-                <p class="highlight">> INFO BIODATA PRIBADI</p><br>
-                <p>• <span class="white">Nama Lengkap</span> : Farhan Nur Hakim</p>
-                <p>• <span class="white">Tanggal Lahir</span> : 21 Desember 2010</p>
-                <p>• <span class="white">Alamat</span>       : Bandung, Jawa Barat</p>
-                <p>• <span class="white">Status</span>       : <span style="color: var(--green);">Pelajar / Future Entrepreneur</span></p>
-            </div>
-
-            <!-- SECTION 2: CITA-CITA -->
-            <div id="sec-cita" class="content-box">
-                <p class="highlight">> CITA-CITA & TARGET KARIR</p><br>
-                <p>• <span class="white">Impian Utama</span> : Pengusaha Sukses</p>
-                <p>• <span class="white">Visi</span>         : Membangun ekosistem bisnis mandiri berbasis teknologi & inovasi digital.</p>
-            </div>
-
-            <!-- SECTION 3: HOBI -->
-            <div id="sec-hobi" class="content-box">
-                <p class="highlight">> DATA HOBI & HIBURAN</p><br>
-                <p>• <span class="white">Hobi Utama</span>   : Main Game (Gaming)</p>
-                <p>• <span class="white">Fokus Game</span>  : Minecraft Java Edition, Strategy, & Simulation</p>
-            </div>
-
-            <!-- SECTION 4: SIMULASI BISNIS -->
-            <div id="sec-sim" class="content-box">
-                <p class="highlight">> FARHAN ENTERPRISE SIMULATOR v3.1</p>
-                <p style="font-size: 11px; color: #8b949e; margin-bottom: 12px;">Kelola bisnis Farhan dari modal nol hingga jadi Raksasa Teknologi!</p>
-
-                <div class="sim-dashboard">
-                    <div class="stat-item">
-                        <div>Kas Modal:</div>
-                        <div id="kas" class="stat-val" style="color: var(--green);">Rp 0</div>
-                    </div>
-                    <div class="stat-item">
-                        <div>Pendapatan Pasif:</div>
-                        <div id="pasif" class="stat-val" style="color: var(--cyan);">+Rp 0 /detik</div>
-                    </div>
-                    <div class="stat-item">
-                        <div>Level Perusahaan:</div>
-                        <div id="level-biz" class="stat-val" style="color: var(--purple);">Startup Rintisan</div>
-                    </div>
-                </div>
-
-                <button class="btn-action" style="width: 100%; text-align: center; background: #1f2937; margin-bottom: 12px;" onclick="klikBisnis(event)">
-                    <div class="action-title" style="font-size: 14px; text-align: center;">🚀 TERIMA PROYEK FREELANCE (+Rp 100.000)</div>
-                </button>
-
-                <div class="highlight" style="font-size: 12px; margin-top: 10px;">> OPSI EKSPANSI BISNIS:</div>
-                <div class="biz-actions">
-                    <button id="btn-staff" class="btn-action" onclick="buyUpgrade('staff', event)">
-                        <div class="action-title">Rekrut Programmer (Rp 500rb)</div>
-                        <div class="action-desc">+Rp 50.000 /detik otomatis</div>
-                    </button>
-
-                    <button id="btn-mkt" class="btn-action" onclick="buyUpgrade('mkt', event)">
-                        <div class="action-title">Pasang Iklan (Rp 2 Juta)</div>
-                        <div class="action-desc">+Rp 250.000 /detik otomatis</div>
-                    </button>
-
-                    <button id="btn-corp" class="btn-action" onclick="buyUpgrade('corp', event)">
-                        <div class="action-title">Sewa Kantor (Rp 10 Juta)</div>
-                        <div class="action-desc">+Rp 1.500.000 /detik otomatis</div>
-                    </button>
-                </div>
-
-                <div class="log-box" id="log-box">
-                    [SYSTEM] Terminal siap. Klik 'Terima Proyek' untuk mulai kumpulkan modal!
-                </div>
-            </div>
-
+        <div class="nav-actions">
+            <button class="icon-btn" id="themeBtn"
+                aria-label="Ganti tema">☀️</button>
+            <button class="icon-btn menu-btn" id="menuBtn"
+                aria-label="Buka menu">☰</button>
         </div>
-    </div>
+    </nav>
+</header>
 
-    <script>
-        // --- WEB AUDIO ENGINE WITH AUTO-RESUME ---
-        let soundEnabled = true;
-        let audioCtx = null;
+<main>
+    <!-- BERANDA -->
+    <section id="home">
+        <div class="container hero">
+            <div class="reveal">
+                <span class="badge">👋 Selamat datang di website saya</span>
+                <h1>Halo, Saya <span>Faris</span></h1>
+                <div class="typing">Saya seorang <span id="typingText"></span></div>
 
-        function getAudioContext() {
-            if (!audioCtx) {
-                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-                if (AudioContextClass) {
-                    audioCtx = new AudioContextClass();
-                }
-            }
-            if (audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            return audioCtx;
-        }
+                <p>
+                    Saya adalah seorang pelajar yang tertarik dengan
+                    teknologi, programming, dan pengembangan website.
+                    Saya senang belajar hal baru dan mengembangkan
+                    kemampuan melalui berbagai project.
+                </p>
 
-        function startSystem() {
-            getAudioContext();
-            document.getElementById('start-overlay').style.display = 'none';
-            playSound('buy');
-        }
+                <div class="buttons">
+                    <a href="#projects" class="btn primary">Lihat Portfolio ↗</a>
+                    <a href="#about" class="btn">Tentang Saya</a>
+                </div>
+            </div>
 
-        function playSound(type) {
-            if (!soundEnabled) return;
-            const ctx = getAudioContext();
-            if (!ctx) return;
+            <div class="reveal">
+                <!-- Ganti F dengan foto profil jika diperlukan -->
+                <div class="avatar">F</div>
+            </div>
+        </div>
+    </section>
 
-            try {
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain);
-                gain.connect(ctx.destination);
+    <!-- TENTANG DAN BIODATA -->
+    <section id="about">
+        <div class="container">
+            <div class="section-title reveal">
+                <span class="blue">ABOUT ME</span>
+                <h2>Tentang Saya</h2>
+                <p>Mengenal saya lebih dekat.</p>
+            </div>
 
-                const now = ctx.currentTime;
+            <div class="grid">
+                <div class="card reveal">
+                    <h3>👋 Perkenalkan</h3>
+                    <p>
+                        Nama saya Faris. Saya merupakan pelajar SMA
+                        yang ingin terus berkembang, terutama dalam
+                        bidang teknologi dan dunia digital.
+                    </p>
+                    <br>
+                    <p>
+                        Saya sedang mempelajari dasar-dasar web
+                        development dan berharap bisa menciptakan
+                        website yang menarik serta bermanfaat.
+                    </p>
+                </div>
 
-                if (type === 'click') {
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(800, now);
-                    osc.frequency.exponentialRampToValueAtTime(200, now + 0.04);
-                    gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.linearRampToValueAtTime(0.01, now + 0.04);
-                    osc.start(now);
-                    osc.stop(now + 0.04);
-                } else if (type === 'coin') {
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(987, now);
-                    osc.frequency.setValueAtTime(1318, now + 0.08);
-                    gain.gain.setValueAtTime(0.25, now);
-                    gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
-                    osc.start(now);
-                    osc.stop(now + 0.2);
-                } else if (type === 'buy') {
-                    osc.type = 'square';
-                    osc.frequency.setValueAtTime(523, now);
-                    osc.frequency.setValueAtTime(659, now + 0.07);
-                    osc.frequency.setValueAtTime(783, now + 0.14);
-                    gain.gain.setValueAtTime(0.15, now);
-                    gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
-                    osc.start(now);
-                    osc.stop(now + 0.25);
-                } else if (type === 'alert') {
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(300, now);
-                    osc.frequency.linearRampToValueAtTime(120, now + 0.2);
-                    gain.gain.setValueAtTime(0.25, now);
-                    gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
-                    osc.start(now);
-                    osc.stop(now + 0.2);
-                }
-            } catch (err) {
-                console.log("Audio Error:", err);
-            }
-        }
+                <div class="card reveal">
+                    <h3>📋 Biodata Diri</h3>
+                    <div class="bio-row"><span>Nama</span><span>Faris</span></div>
+                    <div class="bio-row"><span>Status</span><span>Pelajar SMA</span></div>
+                    <div class="bio-row"><span>Domisili</span><span>Bandung</span></div>
+                    <div class="bio-row"><span>Hobi</span><span>Badminton</span></div>
+                    <div class="bio-row"><span>Minat</span><span>Teknologi</span></div>
+                    <div class="bio-row"><span>Cita-cita</span><span>Software Engineer</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        function toggleSound() {
-            soundEnabled = !soundEnabled;
-            document.getElementById('sound-btn').innerText = soundEnabled ? "🔊 AUDIO: ON" : "🔇 AUDIO: OFF";
-        }
+    <!-- SKILLS -->
+    <section id="skills">
+        <div class="container">
+            <div class="section-title reveal">
+                <span class="blue">MY SKILLS</span>
+                <h2>Kemampuan Saya</h2>
+                <p>Contoh tampilan kemampuan. Sesuaikan dengan kemampuan sebenarnya.</p>
+            </div>
 
-        // --- VISUAL EFFECTS ENGINE ---
-        function createFloatingText(e, text) {
-            const el = document.createElement('div');
-            el.className = 'floating-text';
-            el.innerText = text;
+            <div class="grid">
+                <div class="card reveal">
+                    <div class="skill">
+                        <div class="skill-info"><span>HTML</span><span>90%</span></div>
+                        <div class="bar"><div class="progress" data-width="90%"></div></div>
+                    </div>
+                    <div class="skill">
+                        <div class="skill-info"><span>CSS</span><span>75%</span></div>
+                        <div class="bar"><div class="progress" data-width="75%"></div></div>
+                    </div>
+                    <div class="skill">
+                        <div class="skill-info"><span>JavaScript</span><span>50%</span></div>
+                        <div class="bar"><div class="progress" data-width="50%"></div></div>
+                    </div>
+                </div>
 
-            let x = e ? e.clientX : window.innerWidth / 2;
-            let y = e ? e.clientY : window.innerHeight / 2;
+                <div class="card reveal">
+                    <h3>🚀 Fokus Pengembangan</h3>
+                    <p>
+                        Saya ingin memperdalam HTML, CSS, JavaScript,
+                        responsive design, dan kemampuan memecahkan
+                        masalah melalui programming.
+                    </p>
+                    <br>
+                    <p>
+                        Persentase di sebelah kiri hanyalah contoh,
+                        bukan hasil penilaian resmi.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-            if (!x || x === 0) x = window.innerWidth / 2;
-            if (!y || y === 0) y = window.innerHeight / 2;
+    <!-- PORTOFOLIO -->
+    <section id="projects">
+        <div class="container">
+            <div class="section-title reveal">
+                <span class="blue">MY PORTFOLIO</span>
+                <h2>Project Saya</h2>
+                <p>Contoh project yang dapat dikembangkan dan ditampilkan.</p>
+            </div>
 
-            el.style.left = (x - 20) + 'px';
-            el.style.top = (y - 20) + 'px';
+            <div class="projects">
+                <article class="card reveal">
+                    <div class="project-icon">🌐</div>
+                    <h3>Personal Portfolio</h3>
+                    <p>Website profil pribadi dengan desain modern dan responsif.</p>
+                    <div class="tags">HTML · CSS · JavaScript</div>
+                    <button class="btn projectBtn"
+                        data-title="Personal Portfolio"
+                        data-desc="Website profil pribadi untuk menampilkan biodata, kemampuan, pendidikan, minat, dan project.">
+                        Lihat Detail
+                    </button>
+                </article>
 
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 800);
-        }
+                <article class="card reveal">
+                    <div class="project-icon">🏫</div>
+                    <h3>Website Sekolah</h3>
+                    <p>Konsep website untuk menampilkan informasi dan kegiatan sekolah.</p>
+                    <div class="tags">HTML · CSS</div>
+                    <button class="btn projectBtn"
+                        data-title="Website Sekolah"
+                        data-desc="Konsep website sekolah yang bisa dikembangkan untuk menampilkan informasi, fasilitas, dan kegiatan sekolah.">
+                        Lihat Detail
+                    </button>
+                </article>
 
-        function triggerFlash(colorClass) {
-            const term = document.getElementById('terminal');
-            term.classList.add(colorClass);
-            setTimeout(() => term.classList.remove(colorClass), 250);
-        }
+                <article class="card reveal">
+                    <div class="project-icon">📝</div>
+                    <h3>To-Do List</h3>
+                    <p>Aplikasi untuk mencatat dan mengelola daftar tugas.</p>
+                    <div class="tags">HTML · CSS · JavaScript</div>
+                    <button class="btn projectBtn"
+                        data-title="To-Do List"
+                        data-desc="Aplikasi daftar tugas yang dapat dikembangkan dengan fitur menambah, menyelesaikan, dan menghapus tugas.">
+                        Lihat Detail
+                    </button>
+                </article>
+            </div>
+        </div>
+    </section>
 
-        // --- NAVIGATION ENGINE ---
-        function showSection(id) {
-            playSound('click');
-            document.querySelectorAll('.content-box').forEach(box => box.classList.remove('active'));
-            const target = document.getElementById('sec-' + id);
-            if (target) target.classList.add('active');
-        }
+    <!-- PENDIDIKAN -->
+    <section id="education">
+        <div class="container">
+            <div class="section-title reveal">
+                <span class="blue">EDUCATION</span>
+                <h2>Riwayat Pendidikan</h2>
+            </div>
 
-        // --- BUSINESS SIMULATOR ENGINE ---
-        let modal = 0;
-        let incomePerSec = 0;
-        let staffCount = 0;
+            <div class="timeline">
+                <div class="card reveal">
+                    <span class="blue">2026 – Sekarang</span>
+                    <h3>Sekolah Menengah Atas</h3>
+                    <p>Melanjutkan pendidikan di jenjang SMA.</p>
+                </div>
+                <div class="card reveal">
+                    <span class="blue">2023 – 2026</span>
+                    <h3>Sekolah Menengah Pertama</h3>
+                    <p>Menyelesaikan pendidikan di jenjang SMP.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        function addLog(msg) {
-            const logBox = document.getElementById('log-box');
-            logBox.innerHTML = `> ${msg}<br>${logBox.innerHTML}`;
-        }
+    <!-- HOBI -->
+    <section id="hobbies">
+        <div class="container">
+            <div class="section-title reveal">
+                <span class="blue">MY INTERESTS</span>
+                <h2>Hobi & Minat</h2>
+            </div>
 
-        function formatRupiah(val) {
-            return 'Rp ' + val.toLocaleString('id-ID');
-        }
+            <div class="hobbies">
+                <div class="card hobby reveal"><div>🏸</div><h3>Badminton</h3><p>Olahraga</p></div>
+                <div class="card hobby reveal"><div>💻</div><h3>Programming</h3><p>Belajar coding</p></div>
+                <div class="card hobby reveal"><div>🎮</div><h3>Gaming</h3><p>Hiburan</p></div>
+                <div class="card hobby reveal"><div>🚀</div><h3>Teknologi</h3><p>Belajar hal baru</p></div>
+            </div>
+        </div>
+    </section>
 
-        function updateUI() {
-            document.getElementById('kas').innerText = formatRupiah(modal);
-            document.getElementById('pasif').innerText = '+' + formatRupiah(incomePerSec) + ' /detik';
+    <!-- CITA-CITA -->
+    <section id="goals">
+        <div class="container">
+            <div class="goal reveal">
+                <h2>🎯 Tujuan Masa Depan</h2>
+                <p>
+                    Saya ingin terus belajar di bidang teknologi,
+                    mengembangkan berbagai project digital, dan
+                    meraih cita-cita menjadi seorang software engineer.
+                </p>
+            </div>
+        </div>
+    </section>
 
-            const lvlElement = document.getElementById('level-biz');
-            if (modal >= 50000000) lvlElement.innerText = "Tech Conglomerate 🌐";
-            else if (modal >= 10000000) lvlElement.innerText = "PT Nasional 🏢";
-            else if (modal >= 2000000) lvlElement.innerText = "Startup Digital 💻";
-            else lvlElement.innerText = "Usia Rintisan 💡";
+    <!-- KONTAK -->
+    <section id="contact">
+        <div class="container">
+            <div class="section-title reveal">
+                <span class="blue">CONTACT</span>
+                <h2>Hubungi Saya</h2>
+                <p>Silakan gunakan informasi kontak yang sudah kamu perbarui.</p>
+            </div>
 
-            document.getElementById('btn-staff').disabled = modal < 500000;
-            document.getElementById('btn-mkt').disabled = modal < 2000000;
-            document.getElementById('btn-corp').disabled = modal < 10000000;
-        }
+            <div class="contact-grid">
+                <div class="card reveal">
+                    <h3>Informasi Kontak</h3>
+                    <br>
+                    <p>📧 Email: emailkamu@example.com</p>
+                    <br>
+                    <p>📍 Lokasi: Bandung, Indonesia</p>
+                    <br>
+                    <p>💻 GitHub: tambahkan link akunmu</p>
+                </div>
 
-        function klikBisnis(e) {
-            modal += 100000;
-            playSound('coin');
-            createFloatingText(e, '+Rp 100.000');
-            addLog("Proyek selesai! Dapat modal +Rp 100.000");
-            updateUI();
-        }
+                <div class="card reveal">
+                    <form id="contactForm">
+                        <div>
+                            <label for="name">Nama</label>
+                            <input id="name" type="text"
+                                placeholder="Nama kamu" required>
+                        </div>
+                        <div>
+                            <label for="email">Email</label>
+                            <input id="email" type="email"
+                                placeholder="email@example.com" required>
+                        </div>
+                        <div>
+                            <label for="message">Pesan</label>
+                            <textarea id="message"
+                                placeholder="Tulis pesan..." required></textarea>
+                        </div>
+                        <button class="btn primary" type="submit">
+                            Kirim Pesan
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
 
-        function buyUpgrade(type, e) {
-            if (type === 'staff' && modal >= 500000) {
-                modal -= 500000;
-                incomePerSec += 50000;
-                staffCount++;
-                playSound('buy');
-                triggerFlash('flash-green');
-                createFloatingText(e, 'Programmer +1');
-                addLog(`Berhasil merekrut Programmer ke-${staffCount}! (+Rp 50rb/dtk)`);
-            } else if (type === 'mkt' && modal >= 2000000) {
-                modal -= 2000000;
-                incomePerSec += 250000;
-                playSound('buy');
-                triggerFlash('flash-green');
-                createFloatingText(e, 'Campaign Active!');
-                addLog(`Kampanye Digital Marketing Aktif! (+Rp 250rb/dtk)`);
-            } else if (type === 'corp' && modal >= 10000000) {
-                modal -= 10000000;
-                incomePerSec += 1500000;
-                playSound('buy');
-                triggerFlash('flash-green');
-                createFloatingText(e, 'New Office!');
-                addLog(`Sewa Kantor Baru Sukses! Farhan Enterprise Makin Besar!`);
-            }
-            updateUI();
-        }
+<footer>
+    <p>© <span id="year"></span> Faris. Dibuat dengan HTML, CSS & JavaScript.</p>
+</footer>
 
-        // Timer Pasif
-        setInterval(() => {
-            if (incomePerSec > 0) {
-                modal += incomePerSec;
-                updateUI();
-            }
-        }, 1000);
+<button class="icon-btn" id="backTop" aria-label="Kembali ke atas">↑</button>
+<div id="toast" role="status" aria-live="polite"></div>
 
-        // Random Event (20 Detik)
-        setInterval(() => {
-            if (modal > 1000000) {
-                const rand = Math.random();
-                if (rand > 0.65) {
-                    const bonus = Math.floor(incomePerSec * 4) + 250000;
-                    modal += bonus;
-                    playSound('buy');
-                    triggerFlash('flash-green');
-                    addLog(`<span style="color: var(--green);">[EVENT] Investor masuk! Bonus ${formatRupiah(bonus)}</span>`);
-                } else if (rand < 0.2) {
-                    const rugi = 150000;
-                    modal = Math.max(0, modal - rugi);
-                    playSound('alert');
-                    triggerFlash('flash-red');
-                    addLog(`<span style="color: var(--red);">[EVENT] Maintenance Server -${formatRupiah(rugi)}</span>`);
-                }
-                updateUI();
-            }
-        }, 20000);
+<script>
+// ===== JAVASCRIPT =====
 
-        showSection('bio');
-        updateUI();
-    </script>
-</body>
-</html>
+// Menu HP
+const menuBtn = document.getElementById("menuBtn");
+const navLinks = document.getElementById("navLinks");
+
+menuBtn.addEventListener("click", () => {
+    const opened = navLinks.classList.toggle("active");
+    menuBtn.textContent = opened ? "✕" : "☰";
+    menuBtn.setAttribute("aria-expanded", String(opened));
+});
+
+document.querySelectorAll(".nav-links a").forEach(link => {
+    link.addEventListener("click", () => {
+        navLinks.classList.remove("active");
+        menuBtn.textContent = "☰";
+        menuBtn.setAttribute("aria-expanded", "false");
+    });
+});
+
+// Dark / Light mode
+const themeBtn = document.getElementById("themeBtn");
+
+try {
+    if (localStora
